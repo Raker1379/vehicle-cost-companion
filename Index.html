@@ -1,0 +1,1165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b25">
+
+  <title>EV Charging & Fuel Cost Calculator | Vehicle Cost Companion</title>
+  <meta name="description" content="Compare EV home charging, public charging and petrol or gasoline costs. Choose your country, currency, vehicle efficiency and local energy prices with this free calculator.">
+  <meta name="robots" content="index,follow">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Vehicle Cost Companion | EV & Fuel Calculator">
+  <meta property="og:description" content="Calculate electric vehicle charging costs and compare EV energy costs with petrol or gasoline using your own prices.">
+  <meta name="twitter:card" content="summary">
+
+  <!-- Add your final domain to canonical and social metadata after launch. -->
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Vehicle Cost Companion",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "description": "A free calculator for estimating electric vehicle charging costs and comparing electricity costs with petrol or gasoline.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "GBP"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --ink: #18342d;
+      --muted: #687b73;
+      --green: #176b4b;
+      --dark: #102b25;
+      --lime: #d8f36a;
+      --bg: #f5f8f2;
+      --line: #e1e9df;
+      --blue: #2864a6;
+      --shadow: 0 14px 36px rgba(24,52,45,.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: 20px; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse at 10% 0%, rgba(216,243,106,.17), transparent 32rem),
+        var(--bg);
+      line-height: 1.6;
+    }
+
+    input, select, button { font: inherit; }
+    button, select { cursor: pointer; }
+    a { color: inherit; }
+
+    .container { width: min(1120px, calc(100% - 32px)); margin: auto; }
+
+    header { padding: 20px 0; }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      color: var(--lime);
+      background: var(--dark);
+      font-size: 1.4rem;
+    }
+
+    .pill {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: white;
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 750;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 32px;
+      align-items: center;
+      padding: clamp(28px, 6vw, 65px);
+      margin: 10px 0 30px;
+      border-radius: 30px;
+      color: white;
+      background:
+        radial-gradient(circle at 85% 15%, #32694a, transparent 18rem),
+        linear-gradient(125deg, #102b25, #1b533c);
+      box-shadow: 0 24px 55px rgba(16,43,37,.18);
+    }
+
+    .eyebrow, .kicker {
+      margin-bottom: 8px;
+      font-size: .76rem;
+      font-weight: 850;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow { color: var(--lime); }
+
+    h1 {
+      max-width: 670px;
+      margin: 0 0 18px;
+      font-size: clamp(2.4rem, 5.5vw, 4.3rem);
+      line-height: 1.03;
+      letter-spacing: -.065em;
+    }
+
+    .hero p { max-width: 600px; color: rgba(255,255,255,.78); }
+
+    .hero-art {
+      display: grid;
+      place-items: center;
+      justify-self: center;
+      width: min(250px, 100%);
+      aspect-ratio: 1;
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 32px;
+      color: var(--lime);
+      background: rgba(255,255,255,.08);
+      font-size: 7rem;
+      box-shadow: inset 0 1px rgba(255,255,255,.12), 0 20px 45px rgba(0,0,0,.12);
+      transform: rotate(3deg);
+    }
+
+    .section { margin: 0 0 42px; scroll-margin-top: 20px; }
+    .section-heading { margin-bottom: 18px; }
+    .kicker { color: var(--green); }
+
+    h2 {
+      margin: 5px 0 8px;
+      font-size: clamp(1.65rem, 3vw, 2.35rem);
+      line-height: 1.15;
+      letter-spacing: -.045em;
+    }
+
+    h3 { line-height: 1.25; }
+    .muted { color: var(--muted); }
+
+    .card {
+      padding: clamp(20px, 4vw, 32px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      box-shadow: var(--shadow);
+    }
+
+    .settings-card { background: linear-gradient(135deg, #fff, #f7fbf4); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 17px 14px;
+    }
+
+    .field { min-width: 0; }
+    .full { grid-column: 1 / -1; }
+
+    label { display: block; margin-bottom: 6px; font-size: .85rem; font-weight: 800; }
+
+    .help {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: .75rem;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 47px;
+      padding: 10px 12px;
+      border: 1px solid #dbe5da;
+      border-radius: 12px;
+      outline: none;
+      color: var(--ink);
+      background: #fbfcfa;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(23,107,75,.12);
+    }
+
+    input[aria-invalid="true"] { border-color: #bd3939; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      align-items: start;
+      gap: 28px;
+    }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+    .btn {
+      min-height: 46px;
+      padding: 11px 17px;
+      border: 0;
+      border-radius: 12px;
+      font-weight: 850;
+    }
+
+    .btn-primary {
+      color: white;
+      background: var(--green);
+      box-shadow: 0 7px 16px rgba(23,107,75,.17);
+    }
+
+    .btn-light {
+      border: 1px solid var(--line);
+      color: var(--ink);
+      background: #f7faf5;
+    }
+
+    .results {
+      padding: 22px;
+      border: 1px solid #e2eae0;
+      border-radius: 18px;
+      background: linear-gradient(140deg, #f6faf3, #f9fbf8);
+    }
+
+    .results h3 { margin: 0 0 16px; }
+
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+    }
+
+    .result {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid #e4ebe2;
+      border-radius: 15px;
+      background: white;
+      box-shadow: 0 4px 12px rgba(24,52,45,.035);
+    }
+
+    .result.home { background: linear-gradient(145deg, #eff9ef, white); border-color: #d5e9d4; }
+    .result.public { background: linear-gradient(145deg, #eef5ff, white); border-color: #d8e6f9; }
+
+    .result-label { margin-bottom: 10px; color: var(--muted); font-size: .8rem; font-weight: 750; }
+
+    .result-value {
+      margin-bottom: 4px;
+      font-size: clamp(1.4rem, 3vw, 2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -.05em;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-caption { margin: 0; color: var(--muted); font-size: .76rem; }
+
+    .summary {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      color: #28543b;
+      background: #e8f4e7;
+      font-size: .88rem;
+    }
+
+    .notice {
+      margin: 13px 0;
+      padding: 13px 15px;
+      border: 1px solid #f0dfb5;
+      border-radius: 12px;
+      color: #80571b;
+      background: #fff4dc;
+      font-size: .82rem;
+    }
+
+    .notice[hidden] { display: none; }
+
+    .dark-card {
+      color: white;
+      background: linear-gradient(135deg, #102b25, #1b503b);
+      border-color: transparent;
+      box-shadow: 0 18px 45px rgba(16,43,37,.16);
+    }
+
+    .dark-card .kicker { color: var(--lime); }
+    .dark-card .muted { color: rgba(255,255,255,.72); }
+    .dark-card .results { border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.07); }
+    .dark-card .results h3 { color: white; }
+    .dark-card .result { color: var(--ink); background: white; }
+    .dark-card .result.home { background: #f0faee; }
+    .dark-card .result.public { background: #eff6ff; }
+    .dark-card .summary { color: #eff8e9; background: rgba(216,243,106,.13); }
+    .dark-card .summary strong { color: var(--lime); }
+    .dark-card .help { color: rgba(255,255,255,.65); }
+    .dark-card input, .dark-card select {
+      color: white;
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.2);
+    }
+    .dark-card input:focus, .dark-card select:focus { border-color: var(--lime); }
+    .dark-card .btn-light {
+      color: white;
+      border-color: rgba(255,255,255,.2);
+      background: rgba(255,255,255,.08);
+    }
+
+    .info-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 15px; }
+
+    .info {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: white;
+      box-shadow: 0 7px 20px rgba(24,52,45,.04);
+    }
+
+    .info h3 { margin: 0 0 7px; font-size: 1rem; }
+    .info p { margin: 0; color: var(--muted); font-size: .88rem; }
+
+    .faq { display: grid; gap: 10px; }
+
+    details {
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      background: white;
+    }
+
+    summary { cursor: pointer; font-weight: 800; }
+    details p { margin: 10px 0 0; color: var(--muted); }
+    .small-note { color: var(--muted); font-size: .8rem; }
+
+    footer {
+      margin-top: 55px;
+      padding: 25px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .82rem;
+    }
+
+    [hidden] { display: none !important; }
+
+    :focus-visible { outline: 3px solid #6fae8a; outline-offset: 3px; }
+
+    @media (max-width: 800px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-art { display: none; }
+      .layout { grid-template-columns: 1fr; }
+      .info-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 500px) {
+      .container { width: calc(100% - 24px); }
+      .hero { padding: 27px 22px; border-radius: 22px; }
+      .card { padding: 18px; border-radius: 18px; }
+      .grid, .result-grid { gap: 11px; }
+      .result { padding: 12px; }
+      .result-label { font-size: .73rem; }
+      .result-value { font-size: clamp(1.3rem, 6vw, 1.7rem); }
+      .btn { flex: 1; }
+      .pill { font-size: .7rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="container nav">
+    <a class="brand" href="#" aria-label="Vehicle Cost Companion home">
+      <span class="brand-icon" aria-hidden="true">ϟ</span>
+      <span>Vehicle Cost Companion</span>
+    </a>
+    <span class="pill">Free global calculator</span>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Smarter driving, anywhere</div>
+      <h1>Know what your miles really cost.</h1>
+      <p>
+        Compare home and public EV charging with petrol or gasoline costs.
+        Choose your country, currency and units, then enter local prices
+        to estimate your running costs.
+      </p>
+      <a class="btn btn-primary" href="#charging"
+         style="display:inline-flex;align-items:center;text-decoration:none;background:var(--lime);color:var(--dark)">
+        Calculate your costs ↗
+      </a>
+    </div>
+    <div class="hero-art" aria-hidden="true">ϟ</div>
+  </section>
+
+  <section class="section card settings-card" aria-labelledby="location-title">
+    <div class="section-heading">
+      <div class="kicker">Your local settings</div>
+      <h2 id="location-title">Choose your country and currency</h2>
+      <p class="muted">
+        Prices below are illustrative starting values, not live prices or
+        verified national averages. Choose your currency and replace them
+        with the prices that apply to you.
+      </p>
+    </div>
+
+    <div class="notice" role="note">
+      <strong>Illustrative values only.</strong>
+      The preset electricity and fuel prices are examples to help you get
+      started. They are not fetched from local suppliers. Vehicle efficiency
+      and battery specifications should also be checked against your vehicle.
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label for="country">Country or region</label>
+        <select id="country">
+          <option value="GB">United Kingdom</option>
+          <option value="US">United States</option>
+          <option value="CA">Canada</option>
+          <option value="AU">Australia</option>
+          <option value="NZ">New Zealand</option>
+          <option value="IE">Ireland</option>
+          <option value="DE">Germany</option>
+          <option value="FR">France</option>
+          <option value="ES">Spain</option>
+          <option value="IT">Italy</option>
+          <option value="NL">Netherlands</option>
+          <option value="NO">Norway</option>
+          <option value="SE">Sweden</option>
+          <option value="CH">Switzerland</option>
+          <option value="IN">India</option>
+          <option value="JP">Japan</option>
+          <option value="SG">Singapore</option>
+          <option value="AE">United Arab Emirates</option>
+          <option value="ZA">South Africa</option>
+          <option value="BR">Brazil</option>
+          <option value="MX">Mexico</option>
+          <option value="OTHER">Other country</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="currency">Display currency</label>
+        <select id="currency">
+          <option value="GBP">GBP — Pound sterling</option>
+          <option value="USD">USD — US dollar</option>
+          <option value="EUR">EUR — Euro</option>
+          <option value="CAD">CAD — Canadian dollar</option>
+          <option value="AUD">AUD — Australian dollar</option>
+          <option value="NZD">NZD — New Zealand dollar</option>
+          <option value="INR">INR — Indian rupee</option>
+          <option value="JPY">JPY — Japanese yen</option>
+          <option value="CHF">CHF — Swiss franc</option>
+          <option value="NOK">NOK — Norwegian krone</option>
+          <option value="SEK">SEK — Swedish krona</option>
+          <option value="SGD">SGD — Singapore dollar</option>
+          <option value="AED">AED — UAE dirham</option>
+          <option value="ZAR">ZAR — South African rand</option>
+          <option value="BRL">BRL — Brazilian real</option>
+          <option value="MXN">MXN — Mexican peso</option>
+          <option value="CNY">CNY — Chinese yuan</option>
+          <option value="KRW">KRW — South Korean won</option>
+          <option value="PLN">PLN — Polish złoty</option>
+          <option value="DKK">DKK — Danish krone</option>
+          <option value="TRY">TRY — Turkish lira</option>
+          <option value="THB">THB — Thai baht</option>
+          <option value="IDR">IDR — Indonesian rupiah</option>
+          <option value="MYR">MYR — Malaysian ringgit</option>
+          <option value="PHP">PHP — Philippine peso</option>
+          <option value="TWD">TWD — Taiwan dollar</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="distanceUnit">Distance unit</label>
+        <select id="distanceUnit">
+          <option value="km">Kilometres (km)</option>
+          <option value="mi">Miles (mi)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="fuelUnit">Fuel economy unit</label>
+        <select id="fuelUnit">
+          <option value="L100">Litres per 100 km (L/100 km)</option>
+          <option value="UKMPG">UK miles per imperial gallon</option>
+          <option value="USMPG">US miles per US gallon</option>
+          <option value="KMPL">Kilometres per litre (km/L)</option>
+        </select>
+      </div>
+    </div>
+    <p class="small-note">Changing currency changes how results are displayed. It does not exchange or convert local energy prices.</p>
+  </section>
+
+  <section class="section" id="charging" aria-labelledby="charging-title">
+    <div class="section-heading">
+      <div class="kicker">01 · Charging calculator</div>
+      <h2 id="charging-title">How much will charging cost?</h2>
+      <p class="muted">Compare the same charge at home and in public using your own electricity rates.</p>
+    </div>
+
+    <div class="card">
+      <div class="layout">
+        <div>
+          <div class="grid">
+            <div class="field">
+              <label for="battery">Usable battery capacity</label>
+              <input id="battery" type="number" min="1" max="300" step=".1" value="60">
+              <span class="help">kWh</span>
+            </div>
+            <div class="field">
+              <label for="losses">Charging energy loss</label>
+              <input id="losses" type="number" min="0" max="40" step="1" value="10">
+              <span class="help">Percent</span>
+            </div>
+            <div class="field">
+              <label for="currentCharge">Current battery level</label>
+              <input id="currentCharge" type="number" min="0" max="100" step="1" value="20">
+              <span class="help">Percent</span>
+            </div>
+            <div class="field">
+              <label for="targetCharge">Target battery level</label>
+              <input id="targetCharge" type="number" min="0" max="100" step="1" value="80">
+              <span class="help">Percent</span>
+            </div>
+            <div class="field">
+              <label for="homeRate">Home electricity price</label>
+              <input id="homeRate" type="number" min="0" max="100000" step=".01" value="7">
+              <span class="help" id="homeRateHelp">p/kWh</span>
+            </div>
+            <div class="field">
+              <label for="publicRate">Public charging price</label>
+              <input id="publicRate" type="number" min="0" max="100000" step=".01" value="65">
+              <span class="help" id="publicRateHelp">p/kWh</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="calculateCharge" type="button">Calculate charge</button>
+            <button class="btn btn-light" id="resetCharge" type="button">Reset</button>
+          </div>
+          <p class="small-note">Enter electricity prices in the displayed currency's minor unit per kWh (for example, 7 pence). For currencies without a minor unit, enter the major-unit price.</p>
+        </div>
+
+        <div class="results" aria-label="Charging results">
+          <h3>Estimated charge cost</h3>
+          <div class="result-grid">
+            <div class="result home">
+              <div class="result-label">⌂ Home charging</div>
+              <div class="result-value" id="homeChargeCost">£2.80</div>
+              <p class="result-caption">This charge</p>
+            </div>
+            <div class="result public">
+              <div class="result-label">⚡ Public charging</div>
+              <div class="result-value" id="publicChargeCost">£26.00</div>
+              <p class="result-caption">This charge</p>
+            </div>
+            <div class="result">
+              <div class="result-label">Energy into battery</div>
+              <div class="result-value" id="storedEnergy">36 kWh</div>
+              <p class="result-caption">Stored energy</p>
+            </div>
+            <div class="result">
+              <div class="result-label">Energy from charger</div>
+              <div class="result-value" id="gridEnergy">40 kWh</div>
+              <p class="result-caption">Including losses</p>
+            </div>
+          </div>
+          <div class="summary" id="chargeSummary" aria-live="polite"></div>
+          <div class="notice" id="chargeNotice" role="alert" hidden></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="vehicle" aria-labelledby="vehicle-title">
+    <div class="section-heading">
+      <div class="kicker">02 · Vehicle details</div>
+      <h2 id="vehicle-title">Add your car's specifications</h2>
+      <p class="muted">This version accepts manual vehicle details. Automatic vehicle data lookup can be added later.</p>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div class="field">
+          <label for="vehicleType">Vehicle type</label>
+          <select id="vehicleType">
+            <option value="ev">Battery electric vehicle (EV)</option>
+            <option value="petrol">Petrol / gasoline</option>
+            <option value="hybrid">Hybrid petrol</option>
+            <option value="phev">Plug-in hybrid</option>
+            <option value="diesel">Diesel</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="modelYear">Model year</label>
+          <select id="modelYear"></select>
+        </div>
+        <div class="field">
+          <label for="make">Make</label>
+          <input id="make" type="text" placeholder="e.g. Tesla, Toyota, BYD" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="model">Model / variant</label>
+          <input id="model" type="text" placeholder="e.g. Model 3, Corolla" autocomplete="off">
+        </div>
+        <div class="field" id="vehicleBatteryField">
+          <label for="vehicleBattery">Usable battery capacity</label>
+          <input id="vehicleBattery" type="number" min="1" max="300" step=".1" placeholder="e.g. 60">
+          <span class="help">kWh. Confirm the specification for your trim.</span>
+        </div>
+        <div class="field" id="vehicleEfficiencyField">
+          <label for="vehicleEfficiency">Electric efficiency</label>
+          <input id="vehicleEfficiency" type="number" min=".1" max="100" step=".1" placeholder="e.g. 3.5">
+          <span class="help" id="vehicleEfficiencyHelp">Miles per kWh</span>
+        </div>
+        <div class="field full" id="vehicleFuelField" hidden>
+          <label for="vehicleFuelEconomy">Fuel economy</label>
+          <input id="vehicleFuelEconomy" type="number" min=".1" max="200" step=".1" placeholder="Enter fuel economy">
+          <span class="help">Use the fuel economy unit selected above.</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="applyVehicle" type="button">Use vehicle details</button>
+        <button class="btn btn-light" id="clearVehicle" type="button">Clear vehicle</button>
+      </div>
+      <p class="small-note" id="vehicleStatus" aria-live="polite">Vehicle lookup is not connected yet. Specifications must be entered manually.</p>
+    </div>
+  </section>
+
+  <section class="section" id="comparison" aria-labelledby="comparison-title">
+    <div class="section-heading">
+      <div class="kicker">03 · Annual running costs</div>
+      <h2 id="comparison-title">EV versus petrol or gasoline</h2>
+      <p class="muted">Compare estimated energy or fuel costs using your annual distance, vehicle efficiency and local prices.</p>
+    </div>
+
+    <div class="card dark-card">
+      <div class="layout">
+        <div>
+          <div class="grid">
+            <div class="field full">
+              <label for="annualDistance" id="distanceLabel">Distance driven per year</label>
+              <input id="annualDistance" type="number" min="1" max="1000000" step="100" value="10000">
+              <span class="help" id="distanceHelp">Miles per year</span>
+            </div>
+            <div class="field">
+              <label for="efficiency">EV efficiency</label>
+              <input id="efficiency" type="number" min=".1" max="100" step=".1" value="3.5">
+              <span class="help" id="annualEfficiencyHelp">Miles per kWh</span>
+            </div>
+            <div class="field">
+              <label for="annualLosses">Charging energy loss</label>
+              <input id="annualLosses" type="number" min="0" max="40" step="1" value="10">
+              <span class="help">Percent</span>
+            </div>
+            <div class="field">
+              <label for="annualHomeRate">Home electricity price</label>
+              <input id="annualHomeRate" type="number" min="0" max="100000" step=".01" value="7">
+              <span class="help" id="annualHomeHelp">p/kWh</span>
+            </div>
+            <div class="field">
+              <label for="annualPublicRate">Public charging price</label>
+              <input id="annualPublicRate" type="number" min="0" max="100000" step=".01" value="65">
+              <span class="help" id="annualPublicHelp">p/kWh</span>
+            </div>
+            <div class="field">
+              <label for="fuelEconomy" id="fuelEconomyLabel">Petrol economy</label>
+              <input id="fuelEconomy" type="number" min=".1" max="200" step=".1" value="40">
+              <span class="help" id="fuelEconomyHelp">UK mpg</span>
+            </div>
+            <div class="field">
+              <label for="fuelPrice" id="fuelPriceLabel">Fuel price</label>
+              <input id="fuelPrice" type="number" min="0" max="100000" step=".01" value="145">
+              <span class="help" id="fuelPriceHelp">p/litre</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-primary" id="calculateAnnual" type="button">Compare annual costs</button>
+            <button class="btn btn-light" id="resetAnnual" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="results" aria-label="Annual cost results">
+          <h3>Estimated cost per year</h3>
+          <div class="result-grid">
+            <div class="result home">
+              <div class="result-label">⌂ EV · Home</div>
+              <div class="result-value" id="evHomeAnnual">£222</div>
+              <p class="result-caption" id="evHomePerDistance">2.2p per mile</p>
+            </div>
+            <div class="result public">
+              <div class="result-label">⚡ EV · Public</div>
+              <div class="result-value" id="evPublicAnnual">£2,063</div>
+              <p class="result-caption" id="evPublicPerDistance">20.6p per mile</p>
+            </div>
+            <div class="result">
+              <div class="result-label" id="fuelResultLabel">⛽ Petrol / gasoline</div>
+              <div class="result-value" id="fuelAnnual">£1,648</div>
+              <p class="result-caption" id="fuelPerDistance">16.5p per mile</p>
+            </div>
+            <div class="result">
+              <div class="result-label">EV electricity</div>
+              <div class="result-value" id="annualEnergy">3,175 kWh</div>
+              <p class="result-caption">Estimated energy drawn</p>
+            </div>
+          </div>
+          <div class="summary" id="annualSummary" aria-live="polite"></div>
+          <div class="notice" id="annualNotice" role="alert" hidden></div>
+        </div>
+      </div>
+      <p class="small-note" style="color:rgba(255,255,255,.7);margin-bottom:0;margin-top:18px">
+        Energy and fuel only; excludes purchase price, finance, insurance, maintenance, tax, tyres, depreciation and charging equipment.
+      </p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="how-title">
+    <div class="section-heading">
+      <div class="kicker">How it works</div>
+      <h2 id="how-title">A clearer view of vehicle running costs</h2>
+    </div>
+    <div class="info-grid">
+      <article class="info">
+        <h3>Choose your location</h3>
+        <p>Select your country, currency and preferred measurement units.</p>
+      </article>
+      <article class="info">
+        <h3>Enter real prices</h3>
+        <p>Use your actual electricity, charging-network and fuel prices for a more useful estimate.</p>
+      </article>
+      <article class="info">
+        <h3>Compare like for like</h3>
+        <p>Compare energy and fuel costs separately from other vehicle ownership costs.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="section-heading">
+      <div class="kicker">Frequently asked questions</div>
+      <h2 id="faq-title">EV and fuel cost calculator FAQs</h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary>Are the preset prices live prices?</summary>
+        <p>No. The defaults are illustrative examples, not current local prices or verified averages. Enter your own electricity and fuel prices before relying on the estimate.</p>
+      </details>
+      <details>
+        <summary>Does changing currency convert local prices?</summary>
+        <p>No. The currency selector changes how results are displayed. It does not perform currency exchange or fetch local energy prices. When changing currency, also update the price inputs to match that currency.</p>
+      </details>
+      <details>
+        <summary>Can I select my vehicle by make and model?</summary>
+        <p>You can enter the make, model and year manually, but automatic vehicle lookup is not connected yet. Battery capacity and efficiency must be checked and entered manually.</p>
+      </details>
+      <details>
+        <summary>Why is charging loss included?</summary>
+        <p>Some electricity drawn from the charger is lost during charging. The calculator includes an allowance, so electricity drawn is higher than the energy stored in the battery.</p>
+      </details>
+      <details>
+        <summary>Does this calculate total ownership cost?</summary>
+        <p>No. It estimates electricity and fuel only. Purchase price, finance, insurance, servicing, tax, tyres, depreciation and charger installation can change total ownership cost.</p>
+      </details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <strong>Vehicle Cost Companion</strong> · Free vehicle running-cost estimates.
+    <p>Estimates only. Check vehicle specifications, local tariffs and fuel prices before making a decision.</p>
+  </div>
+</footer>
+
+<script>
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+const defaults = {
+  battery: 60, losses: 10, currentCharge: 20, targetCharge: 80,
+  homeRate: 7, publicRate: 65,
+  annualDistance: 10000, efficiency: 3.5, annualLosses: 10,
+  annualHomeRate: 7, annualPublicRate: 65,
+  fuelEconomy: 40, fuelPrice: 145
+};
+
+/*
+ * Price inputs use the currency's minor unit:
+ * UK: 7 means 7 pence/kWh; 145 means 145 pence/litre.
+ * For currencies without a minor unit (e.g. JPY), enter the major-unit price.
+ *
+ * All preset prices and efficiencies are illustrative examples only.
+ * They are not live tariffs or verified national averages.
+ */
+const countries = {
+  GB: { currency:"GBP", distance:"mi", fuel:"UKMPG", home:7, public:65, fuelPrice:145, fuelEconomy:40, efficiency:3.5, fuelName:"Petrol" },
+  US: { currency:"USD", distance:"mi", fuel:"USMPG", home:16, public:45, fuelPrice:350, fuelEconomy:30, efficiency:3.5, fuelName:"Gasoline" },
+  CA: { currency:"CAD", distance:"km", fuel:"L100", home:14, public:55, fuelPrice:165, fuelEconomy:8.5, efficiency:18, fuelName:"Gasoline" },
+  AU: { currency:"AUD", distance:"km", fuel:"L100", home:30, public:65, fuelPrice:190, fuelEconomy:7.5, efficiency:16, fuelName:"Petrol" },
+  NZ: { currency:"NZD", distance:"km", fuel:"L100", home:30, public:75, fuelPrice:270, fuelEconomy:7.5, efficiency:16, fuelName:"Petrol" },
+  IE: { currency:"EUR", distance:"km", fuel:"L100", home:30, public:55, fuelPrice:180, fuelEconomy:6.5, efficiency:17, fuelName:"Petrol" },
+  DE: { currency:"EUR", distance:"km", fuel:"L100", home:35, public:60, fuelPrice:180, fuelEconomy:6.5, efficiency:17, fuelName:"Petrol" },
+  FR: { currency:"EUR", distance:"km", fuel:"L100", home:25, public:55, fuelPrice:180, fuelEconomy:6.5, efficiency:17, fuelName:"Essence" },
+  ES: { currency:"EUR", distance:"km", fuel:"L100", home:20, public:50, fuelPrice:165, fuelEconomy:6.5, efficiency:17, fuelName:"Gasolina" },
+  IT: { currency:"EUR", distance:"km", fuel:"L100", home:30, public:60, fuelPrice:185, fuelEconomy:6.5, efficiency:17, fuelName:"Benzina" },
+  NL: { currency:"EUR", distance:"km", fuel:"L100", home:30, public:55, fuelPrice:200, fuelEconomy:6.5, efficiency:17, fuelName:"Benzine" },
+  NO: { currency:"NOK", distance:"km", fuel:"L100", home:120, public:550, fuelPrice:2200, fuelEconomy:6.5, efficiency:17, fuelName:"Bensin" },
+  SE: { currency:"SEK", distance:"km", fuel:"L100", home:150, public:550, fuelPrice:1800, fuelEconomy:6.5, efficiency:17, fuelName:"Bensin" },
+  CH: { currency:"CHF", distance:"km", fuel:"L100", home:28, public:60, fuelPrice:180, fuelEconomy:6.5, efficiency:17, fuelName:"Benzin" },
+  IN: { currency:"INR", distance:"km", fuel:"L100", home:800, public:2000, fuelPrice:10300, fuelEconomy:5.5, efficiency:7, fuelName:"Petrol" },
+  JP: { currency:"JPY", distance:"km", fuel:"L100", home:31, public:55, fuelPrice:175, fuelEconomy:5.5, efficiency:7, fuelName:"Gasoline" },
+  SG: { currency:"SGD", distance:"km", fuel:"L100", home:30, public:60, fuelPrice:280, fuelEconomy:7, efficiency:16, fuelName:"Petrol" },
+  AE: { currency:"AED", distance:"km", fuel:"L100", home:30, public:120, fuelPrice:300, fuelEconomy:7, efficiency:16, fuelName:"Petrol" },
+  ZA: { currency:"ZAR", distance:"km", fuel:"L100", home:280, public:700, fuelPrice:2300, fuelEconomy:7, efficiency:16, fuelName:"Petrol" },
+  BR: { currency:"BRL", distance:"km", fuel:"L100", home:90, public:220, fuelPrice:620, fuelEconomy:9, efficiency:7, fuelName:"Gasolina" },
+  MX: { currency:"MXN", distance:"km", fuel:"L100", home:250, public:600, fuelPrice:2400, fuelEconomy:9, efficiency:7, fuelName:"Gasolina" },
+  OTHER: { currency:"USD", distance:"km", fuel:"L100", home:20, public:50, fuelPrice:150, fuelEconomy:7, efficiency:16, fuelName:"Fuel" }
+};
+
+const noMinorUnit = new Set(["JPY","KRW","IDR","CLP","ISK"]);
+
+function divisor() {
+  return noMinorUnit.has($("currency").value) ? 1 : 100;
+}
+
+function toMajorUnit(inputId) {
+  return Number($(inputId).value) / divisor();
+}
+
+function money(value) {
+  const currency = $("currency").value;
+  return new Intl.NumberFormat("en", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: noMinorUnit.has(currency) ? 0 : 2
+  }).format(value);
+}
+
+function fmt(value, digits=1) {
+  return new Intl.NumberFormat("en", {
+    maximumFractionDigits: digits
+  }).format(value);
+}
+
+function readNumber(id) {
+  const input = $(id);
+  const raw = input.value.trim();
+  const value = raw === "" ? NaN : Number(raw);
+  const min = input.min === "" ? -Infinity : Number(input.min);
+  const max = input.max === "" ? Infinity : Number(input.max);
+
+  const valid = Number.isFinite(value) && value >= min && value <= max;
+  input.setAttribute("aria-invalid", String(!valid));
+  return valid ? value : null;
+}
+
+function showNotice(id, text) {
+  $(id).textContent = text;
+  $(id).hidden = !text;
+}
+
+function setPriceLabels() {
+  const currency = $("currency").value;
+  const minor = noMinorUnit.has(currency) ? currency : `${currency} minor units`;
+
+  $("homeRateHelp").textContent = `${minor} per kWh`;
+  $("publicRateHelp").textContent = `${minor} per kWh`;
+  $("annualHomeHelp").textContent = `${minor} per kWh`;
+  $("annualPublicHelp").textContent = `${minor} per kWh`;
+  $("fuelPriceHelp").textContent = `${minor} per litre`;
+}
+
+function updateUnitLabels() {
+  const distance = $("distanceUnit").value;
+  const fuelUnit = $("fuelUnit").value;
+
+  $("distanceLabel").textContent = `Distance driven per year (${distance})`;
+  $("distanceHelp").textContent = distance === "mi" ? "Miles per year" : "Kilometres per year";
+  $("annualEfficiencyHelp").textContent = distance === "mi" ? "Miles per kWh" : "Kilometres per kWh";
+  $("vehicleEfficiencyHelp").textContent = distance === "mi" ? "Miles per kWh" : "Kilometres per kWh";
+
+  const labels = {
+    L100: "Litres per 100 km",
+    UKMPG: "UK miles per imperial gallon",
+    USMPG: "US miles per US gallon",
+    KMPL: "Kilometres per litre"
+  };
+
+  $("fuelEconomyHelp").textContent = labels[fuelUnit];
+  $("fuelEconomyLabel").textContent = `${countries[$("country").value]?.fuelName || "Fuel"} economy`;
+  $("fuelPriceLabel").textContent = `${countries[$("country").value]?.fuelName || "Fuel"} price`;
+}
+
+function calculateCharge() {
+  const ids = ["battery","losses","currentCharge","targetCharge","homeRate","publicRate"];
+  const v = {};
+  ids.forEach(id => v[id] = readNumber(id));
+
+  if (Object.values(v).some(x => x === null)) {
+    showNotice("chargeNotice","Please correct the highlighted charging fields.");
+    return;
+  }
+
+  if (v.targetCharge < v.currentCharge) {
+    $("targetCharge").setAttribute("aria-invalid","true");
+    showNotice("chargeNotice","Target battery level must be at least as high as the current level.");
+    return;
+  }
+
+  const stored = v.battery * (v.targetCharge - v.currentCharge) / 100;
+  const fromGrid = stored / (1 - v.losses / 100);
+  const homeCost = fromGrid * toMajorUnit("homeRate");
+  const publicCost = fromGrid * toMajorUnit("publicRate");
+
+  $("homeChargeCost").textContent = money(homeCost);
+  $("publicChargeCost").textContent = money(publicCost);
+  $("storedEnergy").textContent = `${fmt(stored,2)} kWh`;
+  $("gridEnergy").textContent = `${fmt(fromGrid,2)} kWh`;
+
+  const difference = Math.abs(homeCost - publicCost);
+
+  if (difference < .005) {
+    $("chargeSummary").innerHTML = "<strong>Similar cost:</strong> Home and public charging are approximately the same at the entered prices.";
+  } else if (homeCost < publicCost) {
+    $("chargeSummary").innerHTML = `<strong>Home charging is cheaper:</strong> Estimated difference of ${money(difference)} for this charge.`;
+  } else {
+    $("chargeSummary").innerHTML = `<strong>Public charging is cheaper:</strong> Estimated difference of ${money(difference)} for this charge.`;
+  }
+
+  showNotice("chargeNotice","");
+}
+
+function fuelLitres(km, miles, economy, unit) {
+  switch (unit) {
+    case "L100": return km * economy / 100;
+    case "UKMPG": return miles / economy * 4.54609;
+    case "USMPG": return miles / economy * 3.785411784;
+    case "KMPL": return km / economy;
+    default: return km * economy / 100;
+  }
+}
+
+function calculateAnnual() {
+  const ids = [
+    "annualDistance","efficiency","annualLosses","annualHomeRate",
+    "annualPublicRate","fuelEconomy","fuelPrice"
+  ];
+
+  const v = {};
+  ids.forEach(id => v[id] = readNumber(id));
+
+  if (Object.values(v).some(x => x === null)) {
+    showNotice("annualNotice","Please correct the highlighted annual comparison fields.");
+    return;
+  }
+
+  const distanceUnit = $("distanceUnit").value;
+  const km = distanceUnit === "mi" ? v.annualDistance * 1.609344 : v.annualDistance;
+  const miles = distanceUnit === "mi" ? v.annualDistance : v.annualDistance / 1.609344;
+
+  const efficiencyKm = distanceUnit === "mi" ? v.efficiency * 1.609344 : v.efficiency;
+  const gridKwh = (km / efficiencyKm) / (1 - v.annualLosses / 100);
+
+  const homeCost = gridKwh * toMajorUnit("annualHomeRate");
+  const publicCost = gridKwh * toMajorUnit("annualPublicRate");
+
+  const litres = fuelLitres(km, miles, v.fuelEconomy, $("fuelUnit").value);
+  const fuelCost = litres * toMajorUnit("fuelPrice");
+
+  const homePerDistance = homeCost / v.annualDistance;
+  const publicPerDistance = publicCost / v.annualDistance;
+  const fuelPerDistance = fuelCost / v.annualDistance;
+
+  $("evHomeAnnual").textContent = money(homeCost);
+  $("evPublicAnnual").textContent = money(publicCost);
+  $("fuelAnnual").textContent = money(fuelCost);
+  $("evHomePerDistance").textContent = `${money(homePerDistance)} per ${distanceUnit}`;
+  $("evPublicPerDistance").textContent = `${money(publicPerDistance)} per ${distanceUnit}`;
+  $("fuelPerDistance").textContent = `${money(fuelPerDistance)} per ${distanceUnit}`;
+  $("annualEnergy").textContent = `${fmt(gridKwh,0)} kWh`;
+
+  const homeDifference = fuelCost - homeCost;
+  const publicDifference = fuelCost - publicCost;
+
+  function comparisonText(label, difference) {
+    if (Math.abs(difference) < .01) {
+      return `${label}: approximately the same annual cost as fuel.`;
+    }
+    return difference > 0
+      ? `${label}: estimated saving of ${money(difference)} per year versus fuel.`
+      : `${label}: estimated additional cost of ${money(Math.abs(difference))} per year versus fuel.`;
+  }
+
+  $("annualSummary").innerHTML =
+    `<strong>${comparisonText("Home charging",homeDifference)}</strong><br>` +
+    comparisonText("Public charging",publicDifference);
+
+  showNotice("annualNotice","");
+}
+
+function setCountryDefaults(code) {
+  const p = countries[code] || countries.OTHER;
+
+  $("currency").value = p.currency;
+  $("distanceUnit").value = p.distance;
+  $("fuelUnit").value = p.fuel;
+
+  $("homeRate").value = p.home;
+  $("publicRate").value = p.public;
+  $("annualHomeRate").value = p.home;
+  $("annualPublicRate").value = p.public;
+  $("fuelPrice").value = p.fuelPrice;
+  $("fuelEconomy").value = p.fuelEconomy;
+  $("efficiency").value = p.efficiency;
+  $("annualDistance").value = p.distance === "mi" ? 10000 : 16000;
+
+  setPriceLabels();
+  updateUnitLabels();
+  calculateCharge();
+  calculateAnnual();
+}
+
+function resetCharge() {
+  ["battery","losses","currentCharge","targetCharge","homeRate","publicRate"]
+    .forEach(id => $(id).value = defaults[id]);
+  calculateCharge();
+}
+
+function resetAnnual() {
+  $("annualDistance").value = defaults.annualDistance;
+  $("efficiency").value = defaults.efficiency;
+  $("annualLosses").value = defaults.annualLosses;
+  $("annualHomeRate").value = defaults.annualHomeRate;
+  $("annualPublicRate").value = defaults.annualPublicRate;
+  $("fuelEconomy").value = defaults.fuelEconomy;
+  $("fuelPrice").value = defaults.fuelPrice;
+  calculateAnnual();
+}
+
+function updateVehicleFields() {
+  const type = $("vehicleType").value;
+  $("vehicleBatteryField").hidden = type === "petrol" || type === "diesel";
+  $("vehicleEfficiencyField").hidden = type === "petrol" || type === "diesel";
+  $("vehicleFuelField").hidden = type === "ev";
+}
+
+function applyVehicle() {
+  const type = $("vehicleType").value;
+  const battery = Number($("vehicleBattery").value);
+  const efficiency = Number($("vehicleEfficiency").value);
+  const fuelEconomy = Number($("vehicleFuelEconomy").value);
+
+  if ((type === "ev" || type === "phev") && battery > 0) {
+    $("battery").value = battery;
+  }
+
+  if ((type === "ev" || type === "phev") && efficiency > 0) {
+    $("efficiency").value = efficiency;
+  }
+
+  if (type !== "ev" && type !== "phev" && fuelEconomy > 0) {
+    $("fuelEconomy").value = fuelEconomy;
+  }
+
+  calculateCharge();
+  calculateAnnual();
+
+  $("vehicleStatus").textContent =
+    "Entered vehicle values applied where provided. Automatic vehicle lookup is not connected yet.";
+}
+
+$("country").addEventListener("change", e => setCountryDefaults(e.target.value));
+
+$("currency").addEventListener("change", () => {
+  setPriceLabels();
+  calculateCharge();
+  calculateAnnual();
+});
+
+$("distanceUnit").addEventListener("change", () => {
+  updateUnitLabels();
+  calculateAnnual();
+});
+
+$("fuelUnit").addEventListener("change", () => {
+  updateUnitLabels();
+  calculateAnnual();
+});
+
+$("calculateCharge").addEventListener("click", calculateCharge);
+$("resetCharge").addEventListener("click", resetCharge);
+$("calculateAnnual").addEventListener("click", calculateAnnual);
+$("resetAnnual").addEventListener("click", resetAnnual);
+$("applyVehicle").addEventListener("click", applyVehicle);
+$("vehicleType").addEventListener("change", updateVehicleFields);
+
+$("clearVehicle").addEventListener("click", () => {
+  ["make","model","vehicleBattery","vehicleEfficiency","vehicleFuelEconomy"]
+    .forEach(id => $(id).value = "");
+
+  $("vehicleStatus").textContent = "Vehicle fields cleared. Automatic lookup is not connected.";
+});
+
+[
+  "battery","losses","currentCharge","targetCharge","homeRate","publicRate"
+].forEach(id => $(id).addEventListener("input", calculateCharge));
+
+[
+  "annualDistance","efficiency","annualLosses","annualHomeRate",
+  "annualPublicRate","fuelEconomy","fuelPrice"
+].forEach(id => $(id).addEventListener("input", calculateAnnual));
+
+const yearSelect = $("modelYear");
+for (let year = new Date().getFullYear() + 1; year >= 1990; year--) {
+  const option = document.createElement("option");
+  option.value = String(year);
+  option.textContent = String(year);
+  if (year === new Date().getFullYear()) option.selected = true;
+  yearSelect.appendChild(option);
+}
+
+updateVehicleFields();
+setPriceLabels();
+updateUnitLabels();
+calculateCharge();
+calculateAnnual();
+</script>
+</body>
+</html>
