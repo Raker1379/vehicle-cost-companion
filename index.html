@@ -95,6 +95,9 @@
       font-size: 1.4rem;
     }
 
+    .brand-icon svg { width: 30px; height: 30px; overflow: visible; }
+    .hero-art svg { width: 150px; height: 150px; overflow: visible; }
+
     .pill {
       padding: 6px 12px;
       border: 1px solid var(--line);
@@ -402,7 +405,14 @@
 <header>
   <div class="container nav">
     <a class="brand" href="#" aria-label="Vehicle Cost Companion home">
-      <span class="brand-icon" aria-hidden="true">ϟ</span>
+      <span class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 40 8 31c.7-2 2.4-3.2 4.5-3.2h16c1.8 0 3.4 1.1 4.2 2.7l4.2 9v8H5v-7.5Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M10 37h22M12 28l3 9m14-9-3 9M9 48v3m23-3v3" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="12" cy="45" r="2.5" fill="currentColor"/><circle cx="29" cy="45" r="2.5" fill="currentColor"/>
+          <path d="m49 11-12 21h9l-5 19 17-26h-10l1-14Z" fill="#D8F36A" stroke="#102B25" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </span>
       <span>Vehicle Cost Companion</span>
     </a>
     <span class="pill">Free global calculator</span>
@@ -424,7 +434,14 @@
         Calculate your costs ↗
       </a>
     </div>
-    <div class="hero-art" aria-hidden="true">ϟ</div>
+    <div class="hero-art" aria-hidden="true">
+      <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 40 7 25c1-2.8 3.6-4.6 6.7-4.6h22c2.8 0 5.3 1.7 6.4 4.2L48 40v12H2V40Z" stroke="currentColor" stroke-width="2.8" stroke-linejoin="round"/>
+        <path d="M7 37h36M11 21l5 15m24-15-5 15M7 52v4m36-4v4" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+        <circle cx="14" cy="46" r="4" fill="currentColor"/><circle cx="37" cy="46" r="4" fill="currentColor"/>
+        <path d="m59 8-13 23h10l-5 21 17-28H58l1-16Z" fill="#D8F36A" stroke="#102B25" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
   </section>
 
   <section class="section card settings-card" aria-labelledby="location-title">
@@ -510,7 +527,7 @@
         <label for="distanceUnit">Distance unit</label>
         <select id="distanceUnit">
           <option value="km">Kilometres (km)</option>
-          <option value="mi">Miles (mi)</option>
+          <option value="mi" selected>Miles (mi)</option>
         </select>
       </div>
 
@@ -518,13 +535,13 @@
         <label for="fuelUnit">Fuel economy unit</label>
         <select id="fuelUnit">
           <option value="L100">Litres per 100 km (L/100 km)</option>
-          <option value="UKMPG">UK miles per imperial gallon</option>
+          <option value="UKMPG" selected>UK miles per imperial gallon</option>
           <option value="USMPG">US miles per US gallon</option>
           <option value="KMPL">Kilometres per litre (km/L)</option>
         </select>
       </div>
     </div>
-    <p class="small-note">Changing currency changes how results are displayed. It does not exchange or convert local energy prices.</p>
+    <p class="small-note">Changing currency keeps numeric prices and recalculates them as the selected currency. Update all price fields to match; no exchange conversion is performed.</p>
   </section>
 
   <section class="section" id="charging" aria-labelledby="charging-title">
@@ -544,19 +561,19 @@
               <span class="help">kWh</span>
             </div>
             <div class="field">
-              <label for="losses">Charging energy loss</label>
+              <label for="losses">Energy lost during charging</label>
               <input id="losses" type="number" min="0" max="40" step="1" value="10">
-              <span class="help">Percent</span>
+              <span class="help">Percent of electricity drawn from the charger</span>
             </div>
             <div class="field">
               <label for="currentCharge">Current battery level</label>
               <input id="currentCharge" type="number" min="0" max="100" step="1" value="20">
-              <span class="help">Percent</span>
+              <span class="help">Percent of battery capacity</span>
             </div>
             <div class="field">
               <label for="targetCharge">Target battery level</label>
               <input id="targetCharge" type="number" min="0" max="100" step="1" value="80">
-              <span class="help">Percent</span>
+              <span class="help">Percent of battery capacity</span>
             </div>
             <div class="field">
               <label for="homeRate">Home electricity price</label>
@@ -570,10 +587,9 @@
             </div>
           </div>
           <div class="actions">
-            <button class="btn btn-primary" id="calculateCharge" type="button">Calculate charge</button>
             <button class="btn btn-light" id="resetCharge" type="button">Reset</button>
           </div>
-          <p class="small-note">Enter electricity prices in the displayed currency's minor unit per kWh (for example, 7 pence). For currencies without a minor unit, enter the major-unit price.</p>
+          <p class="small-note" id="priceEntryHelp">Enter electricity prices using the selected currency's displayed unit.</p>
         </div>
 
         <div class="results" aria-label="Charging results">
@@ -628,7 +644,7 @@
         </div>
         <div class="field">
           <label for="modelYear">Model year</label>
-          <select id="modelYear"></select>
+          <select id="modelYear"><option value="">Choose a year</option></select>
         </div>
         <div class="field">
           <label for="make">Make</label>
@@ -684,9 +700,9 @@
               <span class="help" id="annualEfficiencyHelp">Miles per kWh</span>
             </div>
             <div class="field">
-              <label for="annualLosses">Charging energy loss</label>
+              <label for="annualLosses">Energy lost during charging</label>
               <input id="annualLosses" type="number" min="0" max="40" step="1" value="10">
-              <span class="help">Percent</span>
+              <span class="help">Percent of electricity drawn from the charger</span>
             </div>
             <div class="field">
               <label for="annualHomeRate">Home electricity price</label>
@@ -710,7 +726,6 @@
             </div>
           </div>
           <div class="actions">
-            <button class="btn btn-primary" id="calculateAnnual" type="button">Compare annual costs</button>
             <button class="btn btn-light" id="resetAnnual" type="button">Reset</button>
           </div>
         </div>
@@ -853,10 +868,21 @@ const countries = {
   OTHER: { currency:"USD", distance:"km", fuel:"L100", home:20, public:50, fuelPrice:150, fuelEconomy:7, efficiency:16, fuelName:"Fuel" }
 };
 
-const noMinorUnit = new Set(["JPY","KRW","IDR","CLP","ISK"]);
+const currencySubunits = {
+  GBP: "pence", USD: "cents", EUR: "cents", CAD: "cents", AUD: "cents",
+  NZD: "cents", INR: "paise", CHF: "centimes", NOK: "øre", SEK: "öre",
+  SGD: "cents", AED: "fils", ZAR: "cents", BRL: "centavos", MXN: "centavos",
+  PLN: "groszy", DKK: "øre", TRY: "kuruş", THB: "satang", MYR: "sen",
+  PHP: "centavos", TWD: "cents"
+};
+
+function currencyDigits(currency) {
+  return new Intl.NumberFormat("en", { style: "currency", currency })
+    .resolvedOptions().maximumFractionDigits;
+}
 
 function divisor() {
-  return noMinorUnit.has($("currency").value) ? 1 : 100;
+  return 10 ** currencyDigits($("currency").value);
 }
 
 function toMajorUnit(inputId) {
@@ -868,7 +894,7 @@ function money(value) {
   return new Intl.NumberFormat("en", {
     style: "currency",
     currency,
-    maximumFractionDigits: noMinorUnit.has(currency) ? 0 : 2
+    maximumFractionDigits: currencyDigits(currency)
   }).format(value);
 }
 
@@ -895,15 +921,30 @@ function showNotice(id, text) {
   $(id).hidden = !text;
 }
 
+function clearChargeResults() {
+  ["homeChargeCost","publicChargeCost","storedEnergy","gridEnergy"].forEach(id => $(id).textContent = "—");
+}
+
+function clearAnnualResults() {
+  ["evHomeAnnual","evPublicAnnual","fuelAnnual","evHomePerDistance","evPublicPerDistance","fuelPerDistance","annualEnergy"]
+    .forEach(id => $(id).textContent = "—");
+}
+
 function setPriceLabels() {
   const currency = $("currency").value;
-  const minor = noMinorUnit.has(currency) ? currency : `${currency} minor units`;
+  const digits = currencyDigits(currency);
+  const subunitsPerMajor = 10 ** digits;
+  const subunit = currencySubunits[currency];
+  const priceUnit = digits === 0 ? `${currency} (whole units)` : subunit ? `${currency} ${subunit}` : `${currency} fractional units`;
 
-  $("homeRateHelp").textContent = `${minor} per kWh`;
-  $("publicRateHelp").textContent = `${minor} per kWh`;
-  $("annualHomeHelp").textContent = `${minor} per kWh`;
-  $("annualPublicHelp").textContent = `${minor} per kWh`;
-  $("fuelPriceHelp").textContent = `${minor} per litre`;
+  $("homeRateHelp").textContent = `${priceUnit} per kWh`;
+  $("publicRateHelp").textContent = `${priceUnit} per kWh`;
+  $("annualHomeHelp").textContent = `${priceUnit} per kWh`;
+  $("annualPublicHelp").textContent = `${priceUnit} per kWh`;
+  $("fuelPriceHelp").textContent = `${priceUnit} per litre`;
+  $("priceEntryHelp").textContent = digits === 0
+    ? `Enter electricity and fuel prices in whole ${currency} units.`
+    : `Enter electricity and fuel prices in ${subunit || `fractional ${currency} units`} (for example, ${currency === "GBP" ? "7 pence per kWh" : `${subunitsPerMajor} ${subunit || `fractional ${currency} units`} = 1 ${currency}`}).`;
 }
 
 function updateUnitLabels() {
@@ -933,12 +974,16 @@ function calculateCharge() {
   ids.forEach(id => v[id] = readNumber(id));
 
   if (Object.values(v).some(x => x === null)) {
+    clearChargeResults();
+    $("chargeSummary").textContent = "Results are unavailable until the highlighted fields are corrected.";
     showNotice("chargeNotice","Please correct the highlighted charging fields.");
     return;
   }
 
   if (v.targetCharge < v.currentCharge) {
     $("targetCharge").setAttribute("aria-invalid","true");
+    clearChargeResults();
+    $("chargeSummary").textContent = "Results are unavailable until the target level is corrected.";
     showNotice("chargeNotice","Target battery level must be at least as high as the current level.");
     return;
   }
@@ -986,6 +1031,8 @@ function calculateAnnual() {
   ids.forEach(id => v[id] = readNumber(id));
 
   if (Object.values(v).some(x => x === null)) {
+    clearAnnualResults();
+    $("annualSummary").textContent = "Results are unavailable until the highlighted fields are corrected.";
     showNotice("annualNotice","Please correct the highlighted annual comparison fields.");
     return;
   }
@@ -1036,19 +1083,32 @@ function calculateAnnual() {
 
 function setCountryDefaults(code) {
   const p = countries[code] || countries.OTHER;
+  // Country changes select preferred units and currency without replacing prices or vehicle inputs.
+  const previousDistance = $("distanceUnit").value;
+  const previousFuelUnit = $("fuelUnit").value;
+  const distance = Number($("annualDistance").value);
+  const efficiency = Number($("efficiency").value);
+  const fuelEconomy = Number($("fuelEconomy").value);
+  if (Number.isFinite(distance) && previousDistance !== p.distance) {
+    $("annualDistance").value = String(Math.round(distance * (previousDistance === "mi" ? 1.609344 : 1 / 1.609344)));
+  }
+  if (Number.isFinite(efficiency) && previousDistance !== p.distance) {
+    $("efficiency").value = (efficiency * (previousDistance === "mi" ? 1.609344 : 1 / 1.609344)).toFixed(2);
+  }
+  if (Number.isFinite(fuelEconomy) && fuelEconomy > 0 && previousFuelUnit !== p.fuel) {
+    const km = Number($("annualDistance").value) * (p.distance === "mi" ? 1.609344 : 1);
+    const litres = fuelLitres(km, km / 1.609344, fuelEconomy, previousFuelUnit);
+    const converted = p.fuel === "L100" ? litres / km * 100
+      : p.fuel === "KMPL" ? km / litres
+      : p.fuel === "UKMPG" ? (km / 1.609344) * 4.54609 / litres
+      : (km / 1.609344) * 3.785411784 / litres;
+    if (Number.isFinite(converted)) $("fuelEconomy").value = converted.toFixed(2);
+  }
 
   $("currency").value = p.currency;
   $("distanceUnit").value = p.distance;
   $("fuelUnit").value = p.fuel;
-
-  $("homeRate").value = p.home;
-  $("publicRate").value = p.public;
-  $("annualHomeRate").value = p.home;
-  $("annualPublicRate").value = p.public;
-  $("fuelPrice").value = p.fuelPrice;
-  $("fuelEconomy").value = p.fuelEconomy;
-  $("efficiency").value = p.efficiency;
-  $("annualDistance").value = p.distance === "mi" ? 10000 : 16000;
+  $("fuelResultLabel").textContent = `⛽ ${p.fuelName || "Fuel"}`;
 
   setPriceLabels();
   updateUnitLabels();
@@ -1059,17 +1119,21 @@ function setCountryDefaults(code) {
 function resetCharge() {
   ["battery","losses","currentCharge","targetCharge","homeRate","publicRate"]
     .forEach(id => $(id).value = defaults[id]);
+  const p = countries[$("country").value] || countries.OTHER;
+  $("homeRate").value = p.home;
+  $("publicRate").value = p.public;
   calculateCharge();
 }
 
 function resetAnnual() {
-  $("annualDistance").value = defaults.annualDistance;
-  $("efficiency").value = defaults.efficiency;
+  const p = countries[$("country").value] || countries.OTHER;
+  $("annualDistance").value = p.distance === "mi" ? 10000 : 16000;
+  $("efficiency").value = p.efficiency;
   $("annualLosses").value = defaults.annualLosses;
-  $("annualHomeRate").value = defaults.annualHomeRate;
-  $("annualPublicRate").value = defaults.annualPublicRate;
-  $("fuelEconomy").value = defaults.fuelEconomy;
-  $("fuelPrice").value = defaults.fuelPrice;
+  $("annualHomeRate").value = p.home;
+  $("annualPublicRate").value = p.public;
+  $("fuelEconomy").value = p.fuelEconomy;
+  $("fuelPrice").value = p.fuelPrice;
   calculateAnnual();
 }
 
@@ -1123,9 +1187,7 @@ $("fuelUnit").addEventListener("change", () => {
   calculateAnnual();
 });
 
-$("calculateCharge").addEventListener("click", calculateCharge);
 $("resetCharge").addEventListener("click", resetCharge);
-$("calculateAnnual").addEventListener("click", calculateAnnual);
 $("resetAnnual").addEventListener("click", resetAnnual);
 $("applyVehicle").addEventListener("click", applyVehicle);
 $("vehicleType").addEventListener("change", updateVehicleFields);
@@ -1147,7 +1209,7 @@ $("clearVehicle").addEventListener("click", () => {
 ].forEach(id => $(id).addEventListener("input", calculateAnnual));
 
 const yearSelect = $("modelYear");
-for (let year = new Date().getFullYear() + 1; year >= 1990; year--) {
+for (let year = new Date().getFullYear(); year >= 1990; year--) {
   const option = document.createElement("option");
   option.value = String(year);
   option.textContent = String(year);
