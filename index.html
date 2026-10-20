@@ -274,7 +274,8 @@
     .result.home { background: linear-gradient(145deg, #eff9ef, white); border-color: #d5e9d4; }
     .result.public { background: linear-gradient(145deg, #eef5ff, white); border-color: #d8e6f9; }
 
-    .result-label { margin-bottom: 10px; color: var(--muted); font-size: .8rem; font-weight: 750; }
+    .result-label { display: flex; align-items: center; gap: 7px; margin-bottom: 10px; color: var(--muted); font-size: .8rem; font-weight: 750; }
+    .result-icon { width: 18px; height: 18px; flex: 0 0 auto; }
 
     .result-value {
       margin-bottom: 4px;
@@ -596,7 +597,7 @@
           <h3>Estimated charge cost</h3>
           <div class="result-grid">
             <div class="result home">
-              <div class="result-label">⌂ Home charging</div>
+              <div class="result-label"><svg class="result-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v3l-1 2h2l-1 2" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Home charging</div>
               <div class="result-value" id="homeChargeCost">£2.80</div>
               <p class="result-caption">This charge</p>
             </div>
@@ -627,11 +628,16 @@
     <div class="section-heading">
       <div class="kicker">02 · Vehicle details</div>
       <h2 id="vehicle-title">Add your car's specifications</h2>
-      <p class="muted">This version accepts manual vehicle details. Automatic vehicle data lookup can be added later.</p>
+      <p class="muted">Enter your car's details and specifications manually, then save it in this browser to reuse it later.</p>
     </div>
 
     <div class="card">
       <div class="grid">
+        <div class="field full">
+          <label for="rememberedVehicle">Remembered cars</label>
+          <select id="rememberedVehicle"><option value="">Choose a saved car</option></select>
+          <span class="help">Saved only in this browser on this device.</span>
+        </div>
         <div class="field">
           <label for="vehicleType">Vehicle type</label>
           <select id="vehicleType">
@@ -671,10 +677,12 @@
         </div>
       </div>
       <div class="actions">
-        <button class="btn btn-primary" id="applyVehicle" type="button">Use vehicle details</button>
+        <button class="btn btn-primary" id="applyVehicle" type="button">Apply vehicle details</button>
+        <button class="btn btn-light" id="saveVehicle" type="button">Save this car</button>
+        <button class="btn btn-light" id="deleteVehicle" type="button" disabled>Delete saved car</button>
         <button class="btn btn-light" id="clearVehicle" type="button">Clear vehicle</button>
       </div>
-      <p class="small-note" id="vehicleStatus" aria-live="polite">Vehicle lookup is not connected yet. Specifications must be entered manually.</p>
+      <p class="small-note" id="vehicleStatus" aria-live="polite">Enter the car details and specifications manually. Save cars in this browser to select them again later.</p>
     </div>
   </section>
 
@@ -734,7 +742,7 @@
           <h3>Estimated cost per year</h3>
           <div class="result-grid">
             <div class="result home">
-              <div class="result-label">⌂ EV · Home</div>
+              <div class="result-label"><svg class="result-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v3l-1 2h2l-1 2" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>EV · Home</div>
               <div class="result-value" id="evHomeAnnual">£222</div>
               <p class="result-caption" id="evHomePerDistance">2.2p per mile</p>
             </div>
@@ -801,7 +809,7 @@
       </details>
       <details>
         <summary>Can I select my vehicle by make and model?</summary>
-        <p>You can enter the make, model and year manually, but automatic vehicle lookup is not connected yet. Battery capacity and efficiency must be checked and entered manually.</p>
+        <p>Enter the make, model, year and specifications manually. Saved cars stay in this browser on this device; check battery capacity and efficiency against your exact trim.</p>
       </details>
       <details>
         <summary>Why is charging loss included?</summary>
@@ -1139,9 +1147,117 @@ function resetAnnual() {
 
 function updateVehicleFields() {
   const type = $("vehicleType").value;
-  $("vehicleBatteryField").hidden = type === "petrol" || type === "diesel";
-  $("vehicleEfficiencyField").hidden = type === "petrol" || type === "diesel";
+  $("vehicleBatteryField").hidden = type !== "ev" && type !== "phev";
+  $("vehicleEfficiencyField").hidden = type !== "ev" && type !== "phev";
   $("vehicleFuelField").hidden = type === "ev";
+}
+
+const rememberedVehiclesKey = "vehicle-cost-companion-cars-v1";
+let rememberedVehicles = [];
+
+function readRememberedVehicles() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(rememberedVehiclesKey) || "[]");
+    return Array.isArray(stored) ? stored.filter(car => car && car.id && car.make && car.model) : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderRememberedVehicles(selectedId = "") {
+  const select = $("rememberedVehicle");
+  select.replaceChildren(new Option("Choose a saved car", ""));
+  rememberedVehicles.forEach(car => {
+    const label = [car.year, car.make, car.model].filter(Boolean).join(" ");
+    select.add(new Option(label, car.id));
+  });
+  select.value = selectedId;
+  $("deleteVehicle").disabled = !select.value;
+}
+
+function fuelEconomyInUnit(value, fromUnit, toUnit) {
+  if (!Number.isFinite(value) || value <= 0) return null;
+  if (fromUnit === toUnit) return value;
+  const km = 100;
+  const miles = km / 1.609344;
+  const litres = fuelLitres(km, miles, value, fromUnit);
+  switch (toUnit) {
+    case "L100": return litres;
+    case "KMPL": return km / litres;
+    case "UKMPG": return miles * 4.54609 / litres;
+    case "USMPG": return miles * 3.785411784 / litres;
+    default: return value;
+  }
+}
+
+function applyRememberedVehicle(car) {
+  if (!car) return;
+  $("vehicleType").value = car.type;
+  $("modelYear").value = car.year || "";
+  $("make").value = car.make;
+  $("model").value = car.model;
+  $("vehicleBattery").value = car.battery || "";
+
+  const efficiency = Number(car.efficiency);
+  const currentDistance = $("distanceUnit").value;
+  const convertedEfficiency = Number.isFinite(efficiency)
+    ? efficiency * (car.distanceUnit === currentDistance ? 1 : currentDistance === "mi" ? 1 / 1.609344 : 1.609344)
+    : null;
+  $("vehicleEfficiency").value = convertedEfficiency ? convertedEfficiency.toFixed(2) : "";
+
+  const convertedFuel = fuelEconomyInUnit(Number(car.fuelEconomy), car.fuelUnit, $("fuelUnit").value);
+  $("vehicleFuelEconomy").value = convertedFuel ? convertedFuel.toFixed(2) : "";
+  updateVehicleFields();
+  applyVehicle();
+  $("vehicleStatus").textContent = `${car.make} ${car.model} loaded from this browser's saved cars. Check the values against your trim.`;
+}
+
+function saveVehicle() {
+  const type = $("vehicleType").value;
+  const make = $("make").value.trim();
+  const model = $("model").value.trim();
+  const battery = $("vehicleBattery").value.trim();
+  const efficiency = $("vehicleEfficiency").value.trim();
+  const fuelEconomy = $("vehicleFuelEconomy").value.trim();
+  const batteryValue = type === "ev" || type === "phev" ? readNumber("vehicleBattery") : null;
+  const efficiencyValue = type === "ev" || type === "phev" ? readNumber("vehicleEfficiency") : null;
+  const fuelEconomyValue = type !== "ev" ? readNumber("vehicleFuelEconomy") : null;
+
+  if (!make || !model) {
+    $("vehicleStatus").textContent = "Enter the car's make and model before saving.";
+    return;
+  }
+  if ((type === "ev" || type === "phev") && (batteryValue === null || efficiencyValue === null)) {
+    $("vehicleStatus").textContent = "Enter usable battery capacity and electric efficiency before saving this car.";
+    return;
+  }
+  if (type !== "ev" && fuelEconomyValue === null) {
+    $("vehicleStatus").textContent = "Enter fuel economy before saving this car.";
+    return;
+  }
+
+  const id = $("rememberedVehicle").value || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()));
+  const car = {
+    id,
+    type,
+    year: $("modelYear").value,
+    make,
+    model,
+    battery,
+    efficiency,
+    fuelEconomy,
+    distanceUnit: $("distanceUnit").value,
+    fuelUnit: $("fuelUnit").value
+  };
+
+  rememberedVehicles = [...rememberedVehicles.filter(item => item.id !== id), car];
+  try {
+    localStorage.setItem(rememberedVehiclesKey, JSON.stringify(rememberedVehicles));
+    renderRememberedVehicles(id);
+    $("vehicleStatus").textContent = `${make} ${model} saved in this browser.`;
+  } catch {
+    $("vehicleStatus").textContent = "Could not save this car in browser storage. Check your browser storage settings.";
+  }
 }
 
 function applyVehicle() {
@@ -1158,15 +1274,16 @@ function applyVehicle() {
     $("efficiency").value = efficiency;
   }
 
-  if (type !== "ev" && type !== "phev" && fuelEconomy > 0) {
+  if (type !== "ev" && fuelEconomy > 0) {
     $("fuelEconomy").value = fuelEconomy;
   }
 
   calculateCharge();
   calculateAnnual();
 
-  $("vehicleStatus").textContent =
-    "Entered vehicle values applied where provided. Automatic vehicle lookup is not connected yet.";
+  $("vehicleStatus").textContent = type === "phev"
+    ? "Entered values applied. The annual comparison does not model combined PHEV electric and fuel use."
+    : "Entered values applied to the calculator. Annual results remain an EV-versus-fuel comparison.";
 }
 
 $("country").addEventListener("change", e => setCountryDefaults(e.target.value));
@@ -1190,13 +1307,34 @@ $("fuelUnit").addEventListener("change", () => {
 $("resetCharge").addEventListener("click", resetCharge);
 $("resetAnnual").addEventListener("click", resetAnnual);
 $("applyVehicle").addEventListener("click", applyVehicle);
+$("saveVehicle").addEventListener("click", saveVehicle);
 $("vehicleType").addEventListener("change", updateVehicleFields);
+$("rememberedVehicle").addEventListener("change", e => {
+  const car = rememberedVehicles.find(item => item.id === e.target.value);
+  $("deleteVehicle").disabled = !car;
+  if (car) applyRememberedVehicle(car);
+});
+$("deleteVehicle").addEventListener("click", () => {
+  const id = $("rememberedVehicle").value;
+  const car = rememberedVehicles.find(item => item.id === id);
+  if (!car) return;
+  rememberedVehicles = rememberedVehicles.filter(item => item.id !== id);
+  try {
+    localStorage.setItem(rememberedVehiclesKey, JSON.stringify(rememberedVehicles));
+    renderRememberedVehicles();
+    $("vehicleStatus").textContent = `${car.make} ${car.model} removed from this browser's saved cars.`;
+  } catch {
+    $("vehicleStatus").textContent = "Could not update saved cars in browser storage.";
+  }
+});
 
 $("clearVehicle").addEventListener("click", () => {
   ["make","model","vehicleBattery","vehicleEfficiency","vehicleFuelEconomy"]
     .forEach(id => $(id).value = "");
+  $("rememberedVehicle").value = "";
+  $("deleteVehicle").disabled = true;
 
-  $("vehicleStatus").textContent = "Vehicle fields cleared. Automatic lookup is not connected.";
+  $("vehicleStatus").textContent = "Vehicle fields cleared. Remembered cars remain saved until you delete them.";
 });
 
 [
@@ -1218,6 +1356,8 @@ for (let year = new Date().getFullYear(); year >= 1990; year--) {
 }
 
 updateVehicleFields();
+rememberedVehicles = readRememberedVehicles();
+renderRememberedVehicles();
 setPriceLabels();
 updateUnitLabels();
 calculateCharge();
